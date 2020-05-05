@@ -83,8 +83,10 @@ public class BuscarUsuarioActivityDialogo {
         // crear lista de carview dentro del recycleview
         recyclerViewBuscarUsuario = (RecyclerView) dialogo.findViewById(R.id.recyclerView_DialogBuscarUsuario);
         recyclerViewBuscarUsuario.setLayoutManager(new LinearLayoutManager(context));
+
         adaptadorItemBuscarUsuario = new AdapterItemBuscarUsuario(listaUsuarios);
         recyclerViewBuscarUsuario.setAdapter(adaptadorItemBuscarUsuario);
+
         adaptadorItemBuscarUsuario.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

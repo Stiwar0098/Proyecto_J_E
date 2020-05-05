@@ -36,17 +36,20 @@ public class MainActivity extends AppCompatActivity {
     String id, nombreTitulo = "";
     Usuario user;
     private RecyclerView recyclerViewPrestamo;
-    private AdapterItemPrincipal adaptadorPrueba;
+    private AdapterItemPrincipal adaptadorItemPrincipal;
     private double totalPrestado = 0, totalPagado = 0, totalPendiente = 0;
     private TextView totalPrestadotxt, totalPagadotxt, totalPendientetxt;
     private Button usuariobtn, prestamobtn;
     private DatabaseReference fireReference;
     private FirebaseAuth fireInstancia;
+    private List<PrestamoPrincipal> listaPrestamoPrincipal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Procesos.cargandoIniciar(this);
+
         cargarPreferencias();
         //forzar icono en el action bar
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -54,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setIcon(R.drawable.ic_home);
         getSupportActionBar().setTitle(nombreTitulo);
         getUsuario();
-
 
         usuariobtn = (Button) findViewById(R.id.btnUsuario);
         prestamobtn = (Button) findViewById(R.id.btnPrestamo);
@@ -70,19 +72,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, prestamoActivity.class));
             }
         });
-        // crear lista de carview dentro del recycleview
-        recyclerViewPrestamo = (RecyclerView) findViewById(R.id.recyclerPrestamosPrincipal);
-        recyclerViewPrestamo.setLayoutManager(new LinearLayoutManager(this));
-        adaptadorPrueba = new AdapterItemPrincipal(obtenerPrestamos());
-        recyclerViewPrestamo.setAdapter(adaptadorPrueba);
+
 
         totalPrestadotxt = (TextView) findViewById(R.id.txtTotalPrestadoPrincipal);
         totalPagadotxt = (TextView) findViewById(R.id.txtTotalPagadoPrincipal);
         totalPendientetxt = (TextView) findViewById(R.id.txtTotalPendientePrincipal);
-        totalPrestadotxt.setText(totalPrestado + " $");
-        totalPagadotxt.setText(totalPagado + " $");
-        totalPendiente = totalPrestado - totalPagado;
-        totalPendientetxt.setText(totalPendiente + " $");
+
+        mostrarDatos("");
     }
 
     public void guardarPreferencias() {
@@ -147,25 +143,39 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private List<PrestamoPrincipal> obtenerPrestamos() {
-        List<PrestamoPrincipal> prestamo = new ArrayList<>();
-        prestamo.add(new PrestamoPrincipal("Brayan", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Cristina", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Piedra", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Lucia", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Stiwar", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Macas", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Loaiza", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Cristina", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Piedra", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Lucia", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Stiwar", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Macas", "0705820694", 200, 50));
-        prestamo.add(new PrestamoPrincipal("Loaiza", "0705820694", 200, 50));
-        for (int i = 0; i < prestamo.size(); i++) {
-            totalPrestado = totalPrestado + prestamo.get(i).getTotalPrestado();
-            totalPagado = totalPagado + prestamo.get(i).getTotalPagado();
-        }
-        return prestamo;
+    public void mostrarDatos(String buscar) {
+        listaPrestamoPrincipal = new ArrayList<>();
+        fireReference.child("UsuariosPrestamoPrincipal").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                listaPrestamoPrincipal.clear();
+                for (DataSnapshot snapShot : dataSnapshot.getChildren()) {
+                    PrestamoPrincipal prestamoPrincipal = snapShot.getValue(PrestamoPrincipal.class);
+                    listaPrestamoPrincipal.add(prestamoPrincipal);
+                }
+                for (int i = 0; i < listaPrestamoPrincipal.size(); i++) {
+                    totalPrestado = totalPrestado + listaPrestamoPrincipal.get(i).getTotalPrestado();
+                    totalPagado = totalPagado + listaPrestamoPrincipal.get(i).getTotalPagado();
+                }
+                totalPrestadotxt.setText(totalPrestado + " $");
+                totalPagadotxt.setText(totalPagado + " $");
+                totalPendiente = totalPrestado - totalPagado;
+                totalPendientetxt.setText(totalPendiente + " $");
+                Procesos.cargandoDetener();
+                adaptadorItemPrincipal.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+        // crear lista de carview dentro del recycleview
+        recyclerViewPrestamo = (RecyclerView) findViewById(R.id.recyclerPrestamosPrincipal);
+        recyclerViewPrestamo.setLayoutManager(new LinearLayoutManager(this));
+        adaptadorItemPrincipal = new AdapterItemPrincipal(listaPrestamoPrincipal);
+        recyclerViewPrestamo.setAdapter(adaptadorItemPrincipal);
+
     }
+
+
 }

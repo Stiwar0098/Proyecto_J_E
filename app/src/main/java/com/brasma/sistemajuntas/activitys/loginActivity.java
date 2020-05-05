@@ -132,9 +132,9 @@ public class loginActivity extends AppCompatActivity implements View.OnClickList
                     nombre = (dataSnapshot.child("nombre").getValue().toString());
                     editor.putString("nombreTitulo", nombre);
                     editor.commit();
+                    Intent intent = new Intent(loginActivity.this, MainActivity.class);
                     Toast.makeText(loginActivity.this, "Authentication success", Toast.LENGTH_SHORT).show();
                     Procesos.cargandoDetener();
-                    Intent intent = new Intent(loginActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
                 }
