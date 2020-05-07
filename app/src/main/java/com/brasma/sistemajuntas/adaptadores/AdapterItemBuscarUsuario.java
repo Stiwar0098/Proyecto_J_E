@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,7 +43,6 @@ public class AdapterItemBuscarUsuario extends RecyclerView.Adapter<AdapterItemBu
 
     public void setOnClickListener(View.OnClickListener listener) {
         this.listener = listener;
-
     }
 
     @Override
@@ -56,7 +54,6 @@ public class AdapterItemBuscarUsuario extends RecyclerView.Adapter<AdapterItemBu
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtnombreUsuario, txtCedula, txtNumero, txtEmail;
-        Button btnUsuarioSelecionado;
         Context context;
 
         public ViewHolder(View itemView) {
@@ -66,7 +63,6 @@ public class AdapterItemBuscarUsuario extends RecyclerView.Adapter<AdapterItemBu
             txtCedula = (TextView) itemView.findViewById(R.id.txtCedula__ItemBuscarUsuario);
             txtNumero = (TextView) itemView.findViewById(R.id.txtNumero_ItemBuscarUsuario);
             txtEmail = (TextView) itemView.findViewById(R.id.txtEmail_ItemBuscarUsuario);
-            //btnUsuarioSelecionado=(Button)itemView.findViewById(R.id.btnUsuarioSeleccionado_IntenBuscarUsuario);
         }
     }
 

@@ -1,6 +1,8 @@
 package com.brasma.sistemajuntas.entidades;
 
-public class PrestamoPrincipal {
+import java.io.Serializable;
+
+public class PrestamoPrincipal implements Serializable {
     private String nombreUsuario, cedula;
     private double totalPrestado, totalPagado, pendiente;
 

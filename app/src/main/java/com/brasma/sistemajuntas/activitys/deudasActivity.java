@@ -6,22 +6,25 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.brasma.sistemajuntas.R;
+import com.brasma.sistemajuntas.entidades.PrestamoPrincipal;
 
 public class deudasActivity extends AppCompatActivity {
 
+    PrestamoPrincipal prestamoPrincipal = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deudas);
         // activar flecha ir atras
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         Bundle extras = getIntent().getExtras();
-        String value = "";
         if (extras != null) {
-            value = extras.getString("nombre");
+            prestamoPrincipal = (PrestamoPrincipal) extras.getSerializable("prestamoPrincipal");
+            TextView t = findViewById(R.id.nombre_deudas);
+            t.setText(prestamoPrincipal.getNombreUsuario());
         }
-        TextView nombre;
-        nombre = (TextView) findViewById(R.id.nombre);
-        nombre.setText(value);
+
     }
+
 }

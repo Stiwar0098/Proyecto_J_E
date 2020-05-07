@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Procesos.cargandoIniciar(this);
-
         cargarPreferencias();
         //forzar icono en el action bar
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -161,8 +160,8 @@ public class MainActivity extends AppCompatActivity {
                 totalPagadotxt.setText(totalPagado + " $");
                 totalPendiente = totalPrestado - totalPagado;
                 totalPendientetxt.setText(totalPendiente + " $");
-                Procesos.cargandoDetener();
                 adaptadorItemPrincipal.notifyDataSetChanged();
+                Procesos.cargandoDetener();
             }
 
             @Override
@@ -171,11 +170,18 @@ public class MainActivity extends AppCompatActivity {
         });
         // crear lista de carview dentro del recycleview
         recyclerViewPrestamo = (RecyclerView) findViewById(R.id.recyclerPrestamosPrincipal);
-        recyclerViewPrestamo.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewPrestamo.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         adaptadorItemPrincipal = new AdapterItemPrincipal(listaPrestamoPrincipal);
         recyclerViewPrestamo.setAdapter(adaptadorItemPrincipal);
+        adaptadorItemPrincipal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PrestamoPrincipal prestamoPrincipal = listaPrestamoPrincipal.get(recyclerViewPrestamo.getChildAdapterPosition(v));
+                Intent intent = new Intent(MainActivity.this, deudasActivity.class);
+                intent.putExtra("prestamoPrincipal", prestamoPrincipal);
+                startActivity(intent);
+            }
+        });
 
     }
-
-
 }

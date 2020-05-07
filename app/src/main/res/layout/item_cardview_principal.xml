@@ -155,13 +155,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnDeudas"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/buttonDescripcion" />
-
         <ImageButton
             android:id="@+id/btnAgregar"
             style="@style/Widget.MaterialComponents.MaterialCalendar.HeaderToggleButton"
