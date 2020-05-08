@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -62,12 +63,7 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
     private Button
             btnBuscarUsuario,
             btnGuardarPrestamo;
-    private TextInputLayout
-            txtInputUsuarioSelecionado,
-            txtImputNumeroJunta,
-            txtInputCantidadPrestada,
-            txtInputFechaInicio,
-            txtInputFechaInicioInteres;
+    String descripcioTiempo = "", descricionValor = "", descripcionDia = "";
     private EditText
             txtInteresDolar_Prestamo;
     private ImageButton btnCalendario,
@@ -95,49 +91,13 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
             interesDolar,
             interesPorciento,
             fechaInicioInteres;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_prestamo);
-        fireReference = FirebaseDatabase.getInstance().getReference();
-        dia = calendar.get(Calendar.DAY_OF_MONTH);
-        mes = calendar.get(Calendar.MONTH);
-        ano = calendar.get(Calendar.YEAR);
-        // activar flecha ir atras
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // asignamos los valores a las variables
-        spinnerFormaPago = (Spinner) findViewById(R.id.spinnerFormaPago_Prestamo);
-        spinnerPeriodo = (Spinner) findViewById(R.id.spinnerPeriodo_Prestamo);
-        cardViewIntereses = (CardView) findViewById(R.id.cardviewInteres_Prestamo);
-        switchIntereses = (Switch) findViewById(R.id.switchCalcularInteres_Prestamo);
-        linearLayoutIntereses = (LinearLayout) findViewById(R.id.linearLayoutPeriodo_Prestamo);
-        radioButtonPeriodo = (RadioButton) findViewById(R.id.radioButtonPeriodo_Prestamo);
-        radioButtonUnaVez = (RadioButton) findViewById(R.id.radioButtonUnaVez_Prestamo);
-        btnBuscarUsuario = (Button) findViewById(R.id.btnBuscarUsuario_Prestamo);
-        btnGuardarPrestamo = (Button) findViewById(R.id.btnGuardar_Prestamo);
-        txtInputCantidadPrestada = (TextInputLayout) findViewById(R.id.txtImputCantidadPrestada_Prestamo);
-        btnCalendario = (ImageButton) findViewById(R.id.btnCalendario_Prestamo);
-        txtInputFechaInicio = (TextInputLayout) findViewById(R.id.txtImputFechaInicio_Prestamo);
-        txtInputFechaInicioInteres = (TextInputLayout) findViewById(R.id.txtImputFechaInicioInteres_Prestamo);
-        btnCalendarioIntereses = (ImageButton) findViewById(R.id.btnCalendarioInteres_Prestamo);
-        txtInputUsuarioSelecionado = (TextInputLayout) findViewById(R.id.txtImputUsuarioSelecionado_Prestamo);
-        txtImputNumeroJunta = (TextInputLayout) findViewById(R.id.txtImputNumeroJunta_Prestamo);
-        txtInputCantidadPrestada = (TextInputLayout) findViewById(R.id.txtImputCantidadPrestada_Prestamo);
-        txtInteresDolar_Prestamo = (EditText) findViewById(R.id.txtInteresDolar_Prestamo);
-        //spinner opciones
-        String[] spinnerOpcionesFormaPago = {"<Seleccione>", "Diario", "Semanal", "Al final"};
-        String[] spinnerOpcionesPeriodo = {"<Seleccione>", "Diario"};
-        ArrayAdapter<String> spinnerAdapterFormaPago = new ArrayAdapter<String>(this, R.layout.item_spinner, spinnerOpcionesFormaPago);
-        spinnerFormaPago.setAdapter(spinnerAdapterFormaPago);
-        ArrayAdapter<String> spinnerAdaptePeriodo = new ArrayAdapter<String>(this, R.layout.item_spinner, spinnerOpcionesPeriodo);
-        spinnerPeriodo.setAdapter(spinnerAdaptePeriodo);
-        setOnTouch();
-        //ocultamos intereses
-        cardViewIntereses.setVisibility(View.GONE);
-        linearLayoutIntereses.setVisibility(View.GONE);
-
-    }
+    private TextInputLayout
+            txtInputUsuarioSelecionado,
+            txtImputNumeroJunta,
+            txtInputCantidadPrestada,
+            txtInputFechaInicio,
+            txtInputFechaInicioInteres,
+            txtImputDescripcion;
 
     public void onClickSwitch(View view) {
         if (view.getId() == R.id.switchCalcularInteres_Prestamo) {
@@ -271,7 +231,74 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_prestamo);
+        fireReference = FirebaseDatabase.getInstance().getReference();
+        dia = calendar.get(Calendar.DAY_OF_MONTH);
+        mes = calendar.get(Calendar.MONTH);
+        ano = calendar.get(Calendar.YEAR);
+        // activar flecha ir atras
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // asignamos los valores a las variables
+        spinnerFormaPago = (Spinner) findViewById(R.id.spinnerFormaPago_Prestamo);
+        spinnerPeriodo = (Spinner) findViewById(R.id.spinnerPeriodo_Prestamo);
+        cardViewIntereses = (CardView) findViewById(R.id.cardviewInteres_Prestamo);
+        switchIntereses = (Switch) findViewById(R.id.switchCalcularInteres_Prestamo);
+        linearLayoutIntereses = (LinearLayout) findViewById(R.id.linearLayoutPeriodo_Prestamo);
+        radioButtonPeriodo = (RadioButton) findViewById(R.id.radioButtonPeriodo_Prestamo);
+        radioButtonUnaVez = (RadioButton) findViewById(R.id.radioButtonUnaVez_Prestamo);
+        btnBuscarUsuario = (Button) findViewById(R.id.btnBuscarUsuario_Prestamo);
+        btnGuardarPrestamo = (Button) findViewById(R.id.btnGuardar_Prestamo);
+        txtInputCantidadPrestada = (TextInputLayout) findViewById(R.id.txtImputCantidadPrestada_Prestamo);
+        btnCalendario = (ImageButton) findViewById(R.id.btnCalendario_Prestamo);
+        txtInputFechaInicio = (TextInputLayout) findViewById(R.id.txtImputFechaInicio_Prestamo);
+        txtInputFechaInicioInteres = (TextInputLayout) findViewById(R.id.txtImputFechaInicioInteres_Prestamo);
+        btnCalendarioIntereses = (ImageButton) findViewById(R.id.btnCalendarioInteres_Prestamo);
+        txtInputUsuarioSelecionado = (TextInputLayout) findViewById(R.id.txtImputUsuarioSelecionado_Prestamo);
+        txtImputNumeroJunta = (TextInputLayout) findViewById(R.id.txtImputNumeroJunta_Prestamo);
+        txtInputCantidadPrestada = (TextInputLayout) findViewById(R.id.txtImputCantidadPrestada_Prestamo);
+        txtInteresDolar_Prestamo = (EditText) findViewById(R.id.txtInteresDolar_Prestamo);
+        txtImputDescripcion = (TextInputLayout) findViewById(R.id.txtImputDescripcion_Prestamo);
+        //spinner opciones
+        String[] spinnerOpcionesFormaPago = {"<Seleccione>", "Diario", "Semanal", "Al final"};
+        String[] spinnerOpcionesPeriodo = {"<Seleccione>", "Diario"};
+        ArrayAdapter<String> spinnerAdapterFormaPago = new ArrayAdapter<String>(this, R.layout.item_spinner, spinnerOpcionesFormaPago);
+        spinnerFormaPago.setAdapter(spinnerAdapterFormaPago);
+        ArrayAdapter<String> spinnerAdaptePeriodo = new ArrayAdapter<String>(this, R.layout.item_spinner, spinnerOpcionesPeriodo);
+        spinnerPeriodo.setAdapter(spinnerAdaptePeriodo);
+        setOnTouch();
+        //ocultamos intereses
+        cardViewIntereses.setVisibility(View.GONE);
+        linearLayoutIntereses.setVisibility(View.GONE);
+
+    }
+
     void setOnTouch() {
+        spinnerFormaPago.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                descripcioTiempo = parent.getItemAtPosition(position).toString();
+                switch (position) {
+                    case 0:
+                        txtImputDescripcion.getEditText().setText(" " + descricionValor + " " + descripcionDia);
+                        break;
+                    case 1:
+                    case 2:
+                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        break;
+                    case 3:
+                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " paga todo");
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         spinnerFormaPago.setOnTouchListener(this);
         spinnerPeriodo.setOnTouchListener(this);
     }
