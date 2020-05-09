@@ -14,6 +14,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DecimalFormat;
+
 public class Procesos extends AppCompatActivity {
     public static String id;
     static ProgressDialog cargando;
@@ -76,4 +78,93 @@ public class Procesos extends AppCompatActivity {
         cargando.dismiss();
     }
 
+    public static String controlarDecimales(double numDecimal) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        String deci = df.format(numDecimal);
+        String str = String.valueOf(numDecimal);
+        String[] vector = deci.split(".");
+        String decimales;
+        try {
+            decimales = str.substring(str.indexOf('.') + 1);
+        } catch (Exception e) {
+            decimales = str.substring(str.indexOf(',') + 1);
+        }
+        if (decimales.length() > 2) {
+            if (vector[0].equals("")) {
+                str = "0" + df.format(numDecimal);
+                try {
+                    vector = str.split(".");
+                    numDecimal = Double.parseDouble(vector[0] + "." + vector[1]);
+                } catch (Exception e) {
+                    return numDecimal + "";
+                }
+                return numDecimal + "";
+            }
+            if (esNumero(vector[0]) == false) {
+                if (Double.parseDouble(numDecimal + "") < 0) {
+                    str = "-0" + df.format((-1 * numDecimal));
+                    try {
+                        vector = str.split(".");
+                        numDecimal = Double.parseDouble(vector[0] + "." + vector[1]);
+                    } catch (Exception e) {
+                        return numDecimal + "";
+                    }
+                    return numDecimal + "";
+                } else {
+                    str = "0" + df.format((numDecimal));
+                    try {
+                        vector = str.split(".");
+                        numDecimal = Double.parseDouble(vector[0] + "." + vector[1]);
+                    } catch (Exception e) {
+                        return numDecimal + "";
+                    }
+                    return numDecimal + "";
+                }
+            } else {
+                if (decimales.length() > 2) {
+                    str = df.format(numDecimal);
+                    try {
+                        vector = str.split(".");
+                        numDecimal = Double.parseDouble(vector[0] + "." + vector[1]);
+                    } catch (Exception e) {
+                        return numDecimal + "";
+                    }
+                    return numDecimal + "";
+                }
+                return numDecimal + "";
+            }
+        }
+        return numDecimal + "";
+    }
+
+    private static boolean esNumero(String numero) {
+        int num = 0;
+        try {
+            num = Integer.parseInt(numero);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static String controlarEnteros(String numDecimal) {
+        String str = numDecimal;
+        String decimales;
+        try {
+            decimales = str.substring(str.indexOf('.') + 1);
+        } catch (Exception e) {
+            decimales = str.substring(str.indexOf(',') + 1);
+        }
+        if (decimales.equals("0")) {
+            return cogerSoloEnteros(Double.parseDouble(numDecimal)) + "";
+        } else {
+            return numDecimal;
+        }
+    }
+
+    public static int cogerSoloEnteros(double numero) {
+        String str = String.valueOf(numero);
+        int intNumber = Integer.parseInt(str.substring(0, str.indexOf('.')));
+        return intNumber;
+    }
 }

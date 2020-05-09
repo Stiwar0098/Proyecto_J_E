@@ -264,9 +264,9 @@
                                     android:layout_weight="1"
                                     android:drawableRight="@drawable/ic_pocentaje"
                                     android:gravity="right"
-                                    android:inputType="number"
+                                    android:inputType="numberDecimal"
                                     android:maxEms="0"
-                                    android:maxLength="3" />
+                                    android:maxLength="5" />
                             </LinearLayout>
 
                             <RadioGroup

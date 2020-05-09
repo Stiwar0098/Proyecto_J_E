@@ -4,6 +4,8 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -65,7 +67,8 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
             btnGuardarPrestamo;
     String descripcioTiempo = "", descricionValor = "", descripcionDia = "";
     private EditText
-            txtInteresDolar_Prestamo;
+            txtInteresDolar_Prestamo,
+            txtInteresPorcentaje_Prestamo;
     private ImageButton btnCalendario,
             btnCalendarioIntereses;
     private int
@@ -261,6 +264,62 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
         txtInputCantidadPrestada = (TextInputLayout) findViewById(R.id.txtImputCantidadPrestada_Prestamo);
         txtInteresDolar_Prestamo = (EditText) findViewById(R.id.txtInteresDolar_Prestamo);
         txtImputDescripcion = (TextInputLayout) findViewById(R.id.txtImputDescripcion_Prestamo);
+        txtInteresPorcentaje_Prestamo = (EditText) findViewById(R.id.txtInteresPorcentaje_Prestamo);
+        txtInteresPorcentaje_Prestamo.setSelectAllOnFocus(true);
+        txtInteresDolar_Prestamo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (txtInteresDolar_Prestamo.hasFocus()) {
+                    if (!(txtInputCantidadPrestada.getEditText().getText().toString().isEmpty())) {
+                        if (s.toString().isEmpty()) {
+                            txtInteresPorcentaje_Prestamo.setText("");
+                        } else {
+                            double valorInteresDolar = Double.parseDouble(s.toString());
+                            double valorPrestado = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString());
+                            double auxPorciento = (valorInteresDolar * 100) / valorPrestado;
+                            txtInteresPorcentaje_Prestamo.setText(Procesos.controlarEnteros(Procesos.controlarDecimales(auxPorciento)));
+                        }
+                    }
+                }
+            }
+        }); //calcular % de intereses automaticamente al poner el interes en $
+        txtInteresPorcentaje_Prestamo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (txtInteresPorcentaje_Prestamo.hasFocus()) {
+                    if (!(txtInputCantidadPrestada.getEditText().getText().toString().isEmpty())) {
+                        if (s.toString().isEmpty()) {
+                            txtInteresDolar_Prestamo.setText("");
+                        } else {
+                            double valorInteresPorciento = Double.parseDouble(s.toString());
+                            double valorPrestado = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString());
+                            double auxDolar = (valorInteresPorciento * valorPrestado) / 100;
+                            txtInteresDolar_Prestamo.setText(Procesos.controlarEnteros(Procesos.controlarDecimales(auxDolar)));
+                        }
+                    }
+                }
+            }
+        }); //calcular $ de intereses automaticamente al poner el interes en %
         //spinner opciones
         String[] spinnerOpcionesFormaPago = {"<Seleccione>", "Diario", "Semanal", "Al final"};
         String[] spinnerOpcionesPeriodo = {"<Seleccione>", "Diario"};
