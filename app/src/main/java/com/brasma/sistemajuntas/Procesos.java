@@ -90,49 +90,7 @@ public class Procesos extends AppCompatActivity {
             decimales = str.substring(str.indexOf(',') + 1);
         }
         if (decimales.length() > 2) {
-            if (vector[0].equals("")) {
-                str = "0" + df.format(numDecimal);
-                try {
-                    vector = str.split(".");
-                    numDecimal = Double.parseDouble(vector[0] + "." + vector[1]);
-                } catch (Exception e) {
-                    return numDecimal + "";
-                }
-                return numDecimal + "";
-            }
-            if (esNumero(vector[0]) == false) {
-                if (Double.parseDouble(numDecimal + "") < 0) {
-                    str = "-0" + df.format((-1 * numDecimal));
-                    try {
-                        vector = str.split(".");
-                        numDecimal = Double.parseDouble(vector[0] + "." + vector[1]);
-                    } catch (Exception e) {
-                        return numDecimal + "";
-                    }
-                    return numDecimal + "";
-                } else {
-                    str = "0" + df.format((numDecimal));
-                    try {
-                        vector = str.split(".");
-                        numDecimal = Double.parseDouble(vector[0] + "." + vector[1]);
-                    } catch (Exception e) {
-                        return numDecimal + "";
-                    }
-                    return numDecimal + "";
-                }
-            } else {
-                if (decimales.length() > 2) {
-                    str = df.format(numDecimal);
-                    try {
-                        vector = str.split(".");
-                        numDecimal = Double.parseDouble(vector[0] + "." + vector[1]);
-                    } catch (Exception e) {
-                        return numDecimal + "";
-                    }
-                    return numDecimal + "";
-                }
-                return numDecimal + "";
-            }
+            return df.format(numDecimal);
         }
         return numDecimal + "";
     }

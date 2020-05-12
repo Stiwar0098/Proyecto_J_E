@@ -68,7 +68,8 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
     String descripcioTiempo = "", descricionValor = "", descripcionDia = "";
     private EditText
             txtInteresDolar_Prestamo,
-            txtInteresPorcentaje_Prestamo;
+            txtInteresPorcentaje_Prestamo,
+            txtNumeroSemanas;
     private ImageButton btnCalendario,
             btnCalendarioIntereses;
     private int
@@ -265,7 +266,9 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
         txtInteresDolar_Prestamo = (EditText) findViewById(R.id.txtInteresDolar_Prestamo);
         txtImputDescripcion = (TextInputLayout) findViewById(R.id.txtImputDescripcion_Prestamo);
         txtInteresPorcentaje_Prestamo = (EditText) findViewById(R.id.txtInteresPorcentaje_Prestamo);
+        txtNumeroSemanas = (EditText) findViewById(R.id.txtNumeroSemanas_Prestamo);
         txtInteresPorcentaje_Prestamo.setSelectAllOnFocus(true);
+        txtNumeroSemanas.setSelectAllOnFocus(true);
         txtInteresDolar_Prestamo.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -279,6 +282,30 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty())) {
+                    if (spinnerFormaPago.getSelectedItemPosition() == 1) {
+                        double cantidadPrestada = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim());
+                        double interes = 0;
+                        if (!(txtInteresDolar_Prestamo.getText().toString().trim().isEmpty())) {
+                            interes = Double.parseDouble(txtInteresDolar_Prestamo.getText().toString().trim());
+                        }
+                        int numSemanas = Integer.parseInt(txtNumeroSemanas.getText().toString().trim());
+                        double cantidadPorDia = (cantidadPrestada + interes) / convertirSemanasADias();
+                        descricionValor = "$" + Procesos.controlarEnteros(Procesos.controlarDecimales(cantidadPorDia));
+                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                    }
+                    if (spinnerFormaPago.getSelectedItemPosition() == 2) {
+                        double cantidadPrestada = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim());
+                        double interes = 0;
+                        if (!(txtInteresDolar_Prestamo.getText().toString().trim().isEmpty())) {
+                            interes = Double.parseDouble(txtInteresDolar_Prestamo.getText().toString().trim());
+                        }
+                        int numSemanas = Integer.parseInt(txtNumeroSemanas.getText().toString().trim());
+                        double cantidadPorDia = (cantidadPrestada + interes) / (numSemanas);
+                        descricionValor = "$" + Procesos.controlarEnteros(Procesos.controlarDecimales(cantidadPorDia));
+                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                    }
+                }
                 if (txtInteresDolar_Prestamo.hasFocus()) {
                     if (!(txtInputCantidadPrestada.getEditText().getText().toString().isEmpty())) {
                         if (s.toString().isEmpty()) {
@@ -288,6 +315,7 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
                             double valorPrestado = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString());
                             double auxPorciento = (valorInteresDolar * 100) / valorPrestado;
                             txtInteresPorcentaje_Prestamo.setText(Procesos.controlarEnteros(Procesos.controlarDecimales(auxPorciento)));
+
                         }
                     }
                 }
@@ -320,6 +348,83 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
                 }
             }
         }); //calcular $ de intereses automaticamente al poner el interes en %
+        txtNumeroSemanas.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (txtNumeroSemanas.hasFocus()) {
+                    if (s.toString().isEmpty()) {
+                        descricionValor = "";
+                        if (!(spinnerFormaPago.getSelectedItemPosition() == 0)) {
+                            txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        }
+                    } else {
+                        if (!(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty())) {
+                            if (spinnerFormaPago.getSelectedItemPosition() == 1) {
+                                double cantidadPrestada = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim());
+                                double interes = 0;
+                                if (!(txtInteresDolar_Prestamo.getText().toString().trim().isEmpty())) {
+                                    interes = Double.parseDouble(txtInteresDolar_Prestamo.getText().toString().trim());
+                                }
+                                int numSemanas = Integer.parseInt(txtNumeroSemanas.getText().toString().trim());
+                                double cantidadPorDia = (cantidadPrestada + interes) / convertirSemanasADias();
+                                descricionValor = "$" + Procesos.controlarEnteros(Procesos.controlarDecimales(cantidadPorDia));
+                                txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                            }
+                            if (spinnerFormaPago.getSelectedItemPosition() == 2) {
+                                double cantidadPrestada = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim());
+                                double interes = 0;
+                                if (!(txtInteresDolar_Prestamo.getText().toString().trim().isEmpty())) {
+                                    interes = Double.parseDouble(txtInteresDolar_Prestamo.getText().toString().trim());
+                                }
+                                int numSemanas = Integer.parseInt(txtNumeroSemanas.getText().toString().trim());
+                                double cantidadPorDia = (cantidadPrestada + interes) / (numSemanas);
+                                descricionValor = "$" + Procesos.controlarEnteros(Procesos.controlarDecimales(cantidadPorDia));
+                                txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        txtInputCantidadPrestada.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (txtInputCantidadPrestada.hasFocus()) {
+                    //se calcular el interes
+                    if (!(txtInteresPorcentaje_Prestamo.getText().toString().isEmpty())) {
+                        if (s.toString().isEmpty()) {
+                            descricionValor = "";
+                            txtInteresDolar_Prestamo.setText("");
+                        } else {
+                            double valorInteresPorciento = Double.parseDouble(txtInteresPorcentaje_Prestamo.getText().toString().trim());
+                            double valorPrestado = Double.parseDouble(s.toString());
+                            double auxDolar = (valorInteresPorciento * valorPrestado) / 100;
+                            txtInteresDolar_Prestamo.setText(Procesos.controlarEnteros(Procesos.controlarDecimales(auxDolar)));
+                        }
+                    }
+                }
+            }
+        });
         //spinner opciones
         String[] spinnerOpcionesFormaPago = {"<Seleccione>", "Diario", "Semanal", "Al final"};
         String[] spinnerOpcionesPeriodo = {"<Seleccione>", "Diario"};
@@ -338,17 +443,47 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
         spinnerFormaPago.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                descripcioTiempo = parent.getItemAtPosition(position).toString();
+                descripcioTiempo = "Paga " + parent.getItemAtPosition(position).toString();
+                double cantidadPrestada;
+                double interes = 0;
+                int numSemanas;
+                double cantidadPorDia;
                 switch (position) {
                     case 0:
-                        txtImputDescripcion.getEditText().setText(" " + descricionValor + " " + descripcionDia);
+                        txtImputDescripcion.getEditText().setText(descripcionDia);
                         break;
                     case 1:
+                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty())) {
+                            cantidadPrestada = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim());
+                            interes = 0;
+                            if (!(txtInteresDolar_Prestamo.getText().toString().trim().isEmpty())) {
+                                interes = Double.parseDouble(txtInteresDolar_Prestamo.getText().toString().trim());
+                            }
+                            numSemanas = Integer.parseInt(txtNumeroSemanas.getText().toString().trim());
+                            cantidadPorDia = (cantidadPrestada + interes) / convertirSemanasADias();
+                            descricionValor = "$" + Procesos.controlarEnteros(Procesos.controlarDecimales(cantidadPorDia));
+                            txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        }
+
+                        break;
                     case 2:
                         txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty())) {
+                            cantidadPrestada = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim());
+                            interes = 0;
+                            if (!(txtInteresDolar_Prestamo.getText().toString().trim().isEmpty())) {
+                                interes = Double.parseDouble(txtInteresDolar_Prestamo.getText().toString().trim());
+                            }
+                            numSemanas = Integer.parseInt(txtNumeroSemanas.getText().toString().trim());
+                            cantidadPorDia = (cantidadPrestada + interes) / (numSemanas);
+                            descricionValor = "$" + Procesos.controlarEnteros(Procesos.controlarDecimales(cantidadPorDia));
+                            txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        }
+
                         break;
                     case 3:
-                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " paga todo");
+                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " todo");
                         break;
                 }
             }
@@ -360,6 +495,36 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
         });
         spinnerFormaPago.setOnTouchListener(this);
         spinnerPeriodo.setOnTouchListener(this);
+    }
+
+    public int convertirSemanasADias() {
+        int numSemanasAux = Integer.parseInt(txtNumeroSemanas.getText().toString().trim());
+        double interes = 0;
+        if (!(txtInteresDolar_Prestamo.getText().toString().trim().isEmpty())) {
+            interes = Double.parseDouble(txtInteresDolar_Prestamo.getText().toString().trim());
+        }
+        double cantidadPrestadaAux = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim()) + interes;
+        int dias = (numSemanasAux * 7);
+        if (cantidadPrestadaAux % dias != 0) {
+            dias = dias - 4;
+            for (int i = 1; i <= 8; i++) {
+                if (cantidadPrestadaAux > 60) {
+                    String div = (cantidadPrestadaAux / dias) + "";
+                    if (cantidadPrestadaAux % dias == 0 || div.length() <= 3) {
+                        return dias;
+                    } else {
+                        dias = dias + 1;
+                    }
+                } else {
+                    if (cantidadPrestadaAux % dias == 0) {
+                        return dias;
+                    } else {
+                        dias = dias + 1;
+                    }
+                }
+            }
+        }
+        return dias;
     }
 
     @Override
