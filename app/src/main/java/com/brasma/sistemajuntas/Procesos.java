@@ -1,5 +1,4 @@
 package com.brasma.sistemajuntas;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.widget.Toast;
@@ -15,6 +14,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 public class Procesos extends AppCompatActivity {
     public static String id;
@@ -124,5 +127,54 @@ public class Procesos extends AppCompatActivity {
         String str = String.valueOf(numero);
         int intNumber = Integer.parseInt(str.substring(0, str.indexOf('.')));
         return intNumber;
+    }
+
+    public static Date sumarRestarDiasAFecha(int dia, int mes, int ano, int dias) {
+        TimeZone timezone = TimeZone.getDefault();
+        Calendar calendar = new GregorianCalendar(timezone);
+        calendar.set(ano, mes, dia);
+        if (dias == 0) {
+            return calendar.getTime();
+        } else {
+            calendar.add(Calendar.DAY_OF_YEAR, dias);
+        }
+        //  calendar.get(Calendar.YEAR);
+        return calendar.getTime();
+    }
+
+    public static String diaSemana(Date fecha) {
+        int dia, mes, ano;
+        dia = fecha.getDate();
+        mes = fecha.getMonth();
+        ano = fecha.getYear();
+        String letraD = "";
+        TimeZone timezone = TimeZone.getDefault();
+        Calendar calendar = new GregorianCalendar(timezone);
+        calendar.set(ano, mes, dia);
+        int nD = calendar.get(Calendar.DAY_OF_WEEK);
+        switch (nD) {
+            case 1:
+                letraD = "Domingo";
+                break;
+            case 2:
+                letraD = "Lunes";
+                break;
+            case 3:
+                letraD = "Martes";
+                break;
+            case 4:
+                letraD = "Miercoles";
+                break;
+            case 5:
+                letraD = "Jueves";
+                break;
+            case 6:
+                letraD = "Viernes";
+                break;
+            case 7:
+                letraD = "Sábado";
+                break;
+        }
+        return letraD;
     }
 }

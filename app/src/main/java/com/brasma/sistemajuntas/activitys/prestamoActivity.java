@@ -40,6 +40,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 
@@ -86,154 +87,26 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
             prestado = 0;
     private String
             idPrestamo;
+    int diaFin, mesFin, anoFin;
     private String usuarioSelecionado,
             numeroJunta,
             cantidadPrestada,
+            FechaFin,
             descripcion,
             fechaInicio,
             numeroSemanas,
             interesDolar,
             interesPorciento,
+            fechaFin,
             fechaInicioInteres;
     private TextInputLayout
+            txtInputFechaFin,
             txtInputUsuarioSelecionado,
             txtImputNumeroJunta,
             txtInputCantidadPrestada,
             txtInputFechaInicio,
             txtInputFechaInicioInteres,
             txtImputDescripcion;
-
-    public void onClickSwitch(View view) {
-        if (view.getId() == R.id.switchCalcularInteres_Prestamo) {
-            if (switchIntereses.isChecked()) {
-                cerrarTeclado();
-                cardViewIntereses.setVisibility(View.VISIBLE);
-            } else {
-                cerrarTeclado();
-                cardViewIntereses.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    public void onClickRadioButton(View view) {
-        switch (view.getId()) {
-            case R.id.radioButtonPeriodo_Prestamo:
-                if (radioButtonPeriodo.isChecked()) {
-                    cerrarTeclado();
-                    linearLayoutIntereses.setVisibility(View.VISIBLE);
-                }
-                break;
-            case R.id.radioButtonUnaVez_Prestamo:
-                if (radioButtonUnaVez.isChecked()) {
-                    cerrarTeclado();
-                    linearLayoutIntereses.setVisibility(View.GONE);
-                }
-                break;
-        }
-    }
-
-    public void onClickButton(View view) {
-        switch (view.getId()) {
-
-            case R.id.btnBuscarUsuario_Prestamo:
-                new BuscarUsuarioActivityDialogo(this, prestamoActivity.this);
-                break;
-
-            case R.id.btnGuardar_Prestamo:
-                cerrarTeclado();
-                validarCampos();
-                Procesos.cargandoIniciar(prestamoActivity.this);
-                idPrestamo = (UUID.randomUUID().toString());
-                fireReference.child("UsuariosCantidadPrestamos").child(usuario.getUid()).setValue(new UsuariosCantidadPrestamos(sum)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            if ((sum) == 2) {
-                                prestado = Double.parseDouble(cantidadPrestada) + Double.parseDouble(interesDolar);
-                                fireReference.child("UsuariosPrestamoPrincipal").child(usuario.getUid()).setValue(new PrestamoPrincipal(usuario.getNombre(), usuario.getCedula(), prestado, 0)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            Toast.makeText(prestamoActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                                            Procesos.cargandoDetener();
-                                            startActivity(new Intent(prestamoActivity.this, MainActivity.class));
-                                            finish();
-                                        }
-                                    }
-                                });
-                            } else {
-                                aux = 0;
-                                obternerPrestamosPrincipal();
-                            }
-                        }
-                    }
-                });
-                break;
-
-            case R.id.btnCalendario_Prestamo:
-                datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        txtInputFechaInicio.getEditText().setText(dayOfMonth + "-" + (month + 1) + "-" + year);
-                    }
-                }, ano, mes, dia);
-                datePickerDialog.show();
-                break;
-
-            case R.id.btnCalendarioInteres_Prestamo:
-                cerrarTeclado();
-                datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        txtInputFechaInicioInteres.getEditText().setText(dayOfMonth + "-" + (month + 1) + "-" + year);
-                    }
-                }, ano, mes, dia);
-                datePickerDialog.show();
-                break;
-        }
-
-    }
-
-    public void obternerPrestamosPrincipal() {
-        fireReference.child("UsuariosPrestamoPrincipal").child(usuario.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    if (aux == 0) {
-                        aux = 1;
-                        cantidadPrestadaAnterior = Double.parseDouble(dataSnapshot.child("totalPrestado").getValue().toString());
-                        cantidadPagadaAnterior = Double.parseDouble(dataSnapshot.child("totalPagado").getValue().toString());
-                        prestado = Double.parseDouble(cantidadPrestada) + Double.parseDouble(interesDolar) + cantidadPrestadaAnterior;
-                        pagado = cantidadPagadaAnterior;
-                        fireReference.child("UsuariosPrestamoPrincipal").child(usuario.getUid()).setValue(new PrestamoPrincipal(usuario.getNombre(), usuario.getCedula(), prestado, pagado)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(prestamoActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                                    Procesos.cargandoDetener();
-                                    startActivity(new Intent(prestamoActivity.this, MainActivity.class));
-                                    finish();
-                                }
-                            }
-                        });
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
-    }
-
-    public void cerrarTeclado() {
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -267,8 +140,11 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
         txtImputDescripcion = (TextInputLayout) findViewById(R.id.txtImputDescripcion_Prestamo);
         txtInteresPorcentaje_Prestamo = (EditText) findViewById(R.id.txtInteresPorcentaje_Prestamo);
         txtNumeroSemanas = (EditText) findViewById(R.id.txtNumeroSemanas_Prestamo);
+        txtInputFechaFin = (TextInputLayout) findViewById(R.id.txtImputFechaFin_Prestamo);
         txtInteresPorcentaje_Prestamo.setSelectAllOnFocus(true);
         txtNumeroSemanas.setSelectAllOnFocus(true);
+        txtInteresPorcentaje_Prestamo.setSelectAllOnFocus(true);
+        txtInteresDolar_Prestamo.setSelectAllOnFocus(true);
         txtInteresDolar_Prestamo.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -361,10 +237,14 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
 
             @Override
             public void afterTextChanged(Editable s) {
+                // descripccion automatica
                 if (txtNumeroSemanas.hasFocus()) {
                     if (s.toString().isEmpty()) {
                         descricionValor = "";
-                        if (!(spinnerFormaPago.getSelectedItemPosition() == 0)) {
+                        if (spinnerFormaPago.getSelectedItemPosition() == 0) {
+                            descripcioTiempo = "";
+                        }
+                        if (!descricionValor.isEmpty() && !descripcionDia.isEmpty()) {
                             txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
                         }
                     } else {
@@ -392,6 +272,18 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
                                 txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
                             }
                         }
+                        // fecha fin automatica
+                        if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty()) && !(txtInputFechaFin.getEditText().getText().toString().trim().isEmpty())) {
+                            Date fechaFin;
+                            if (spinnerFormaPago.getSelectedItemPosition() == 1) {
+                                fechaFin = Procesos.sumarRestarDiasAFecha(diaFin, mesFin, anoFin, convertirSemanasADias());
+                                txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                            } else if (spinnerFormaPago.getSelectedItemPosition() != 0) {
+                                int sema = Integer.parseInt(txtNumeroSemanas.getText().toString());
+                                fechaFin = Procesos.sumarRestarDiasAFecha(diaFin, mesFin, anoFin, sema * 7);
+                                txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                            }
+                        }
                     }
                 }
             }
@@ -411,16 +303,36 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
             public void afterTextChanged(Editable s) {
                 if (txtInputCantidadPrestada.hasFocus()) {
                     //se calcular el interes
-                    if (!(txtInteresPorcentaje_Prestamo.getText().toString().isEmpty())) {
-                        if (s.toString().isEmpty()) {
-                            descricionValor = "";
-                            txtInteresDolar_Prestamo.setText("");
-                        } else {
+                    if (!(s.toString().isEmpty())) {
+                        generarNumeroSemanas(s);
+                        if (!(txtInteresPorcentaje_Prestamo.getText().toString().isEmpty())) {
                             double valorInteresPorciento = Double.parseDouble(txtInteresPorcentaje_Prestamo.getText().toString().trim());
                             double valorPrestado = Double.parseDouble(s.toString());
                             double auxDolar = (valorInteresPorciento * valorPrestado) / 100;
                             txtInteresDolar_Prestamo.setText(Procesos.controlarEnteros(Procesos.controlarDecimales(auxDolar)));
                         }
+                        //fecha automatica
+                        if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputFechaInicio.getEditText().getText().toString().trim().isEmpty())) {
+                            Date fechaFin;
+                            if (spinnerFormaPago.getSelectedItemPosition() == 1) {
+                                fechaFin = Procesos.sumarRestarDiasAFecha(diaFin, mesFin, anoFin, convertirSemanasADias());
+                                txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                            } else if (spinnerFormaPago.getSelectedItemPosition() != 0) {
+                                int sema = Integer.parseInt(txtNumeroSemanas.getText().toString());
+                                fechaFin = Procesos.sumarRestarDiasAFecha(diaFin, mesFin, anoFin, sema * 7);
+                                txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                            }
+                        }
+                    } else {
+                        descricionValor = "";
+                        if (spinnerFormaPago.getSelectedItemPosition() == 0) {
+                            descripcioTiempo = "";
+                        }
+                        if (!descricionValor.isEmpty() && !descripcionDia.isEmpty()) {
+                            txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        }
+                        txtInteresDolar_Prestamo.setText("");
+                        txtNumeroSemanas.setText("");
                     }
                 }
             }
@@ -439,6 +351,176 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
 
     }
 
+    public void generarNumeroSemanas(Editable s) {
+        int can = Integer.parseInt(s.toString());
+        if (can < 100) {
+            txtNumeroSemanas.setText("4");
+        } else if (can >= 100 && can < 300) {
+            txtNumeroSemanas.setText("6");
+        } else if (can >= 300) {
+            txtNumeroSemanas.setText("8");
+        }
+    }
+
+    public void onClickSwitch(View view) {
+        if (view.getId() == R.id.switchCalcularInteres_Prestamo) {
+            if (switchIntereses.isChecked()) {
+                cerrarTeclado();
+                cardViewIntereses.setVisibility(View.VISIBLE);
+            } else {
+                cerrarTeclado();
+                cardViewIntereses.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    public void onClickRadioButton(View view) {
+        switch (view.getId()) {
+            case R.id.radioButtonPeriodo_Prestamo:
+                if (radioButtonPeriodo.isChecked()) {
+                    cerrarTeclado();
+                    linearLayoutIntereses.setVisibility(View.VISIBLE);
+                }
+                break;
+            case R.id.radioButtonUnaVez_Prestamo:
+                if (radioButtonUnaVez.isChecked()) {
+                    cerrarTeclado();
+                    linearLayoutIntereses.setVisibility(View.GONE);
+                }
+                break;
+        }
+    }
+
+    public void onClickButton(View view) {
+        switch (view.getId()) {
+            case R.id.btnBuscarUsuario_Prestamo:
+                new BuscarUsuarioActivityDialogo(this, prestamoActivity.this);
+                break;
+
+            case R.id.btnGuardar_Prestamo:
+                cerrarTeclado();
+                if (validarCampos()) {
+                    Procesos.cargandoIniciar(prestamoActivity.this);
+                    idPrestamo = (UUID.randomUUID().toString());
+                    fireReference.child("UsuariosCantidadPrestamos").child(usuario.getUid()).setValue(new UsuariosCantidadPrestamos(sum)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                if ((sum) == 2) {
+                                    prestado = Double.parseDouble(cantidadPrestada) + Double.parseDouble(interesDolar);
+                                    fireReference.child("UsuariosPrestamoPrincipal").child(usuario.getUid()).setValue(new PrestamoPrincipal(usuario.getNombre(), usuario.getCedula(), prestado, 0)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(prestamoActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                                                Procesos.cargandoDetener();
+                                                startActivity(new Intent(prestamoActivity.this, MainActivity.class));
+                                                finish();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    aux = 0;
+                                    obternerPrestamosPrincipal();
+                                }
+                            }
+                        }
+                    });
+                }
+                break;
+            case R.id.btnCalendario_Prestamo:
+                datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        txtInputFechaInicio.getEditText().setText(dayOfMonth + "-" + (month + 1) + "-" + year);
+                        diaFin = dayOfMonth;
+                        mesFin = month;
+                        anoFin = year;
+                        //descripcion automatica
+                        if (spinnerFormaPago.getSelectedItemPosition() == 2) {
+                            descripcionDia = "(" + Procesos.diaSemana(Procesos.sumarRestarDiasAFecha(dayOfMonth, (month + 1), year, -1)) + ")";
+                            txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        } else if (spinnerFormaPago.getSelectedItemPosition() != 0) {
+                            txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor);
+                        }
+                        //fecha automatica
+                        if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty())) {
+                            Date fechaFin;
+                            if (spinnerFormaPago.getSelectedItemPosition() == 1) {
+                                fechaFin = Procesos.sumarRestarDiasAFecha(dayOfMonth, month, year, convertirSemanasADias());
+                                txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                            } else if (spinnerFormaPago.getSelectedItemPosition() != 0) {
+                                int sema = Integer.parseInt(txtNumeroSemanas.getText().toString());
+                                fechaFin = Procesos.sumarRestarDiasAFecha(dayOfMonth, month, year, sema * 7);
+                                txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                            }
+                        }
+                    }
+                }, ano, mes, dia);
+
+                datePickerDialog.show();
+                break;
+
+            case R.id.btnCalendarioInteres_Prestamo:
+                cerrarTeclado();
+                datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        txtInputFechaInicioInteres.getEditText().setText(dayOfMonth + "-" + (month + 1) + "-" + year);
+                    }
+                }, ano, mes, dia);
+                datePickerDialog.show();
+                break;
+        }
+
+    }
+
+    public void obternerPrestamosPrincipal() {
+        fireReference.child("UsuariosPrestamoPrincipal").child(usuario.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    if (aux == 0) {
+                        aux = 1;
+                        cantidadPrestadaAnterior = Double.parseDouble(dataSnapshot.child("totalPrestado").getValue().toString());
+                        cantidadPagadaAnterior = Double.parseDouble(dataSnapshot.child("totalPagado").getValue().toString());
+                        if (interesDolar.isEmpty()) {
+                            interesDolar = "0";
+                        }
+                        prestado = Double.parseDouble(cantidadPrestada) + Double.parseDouble(interesDolar) + cantidadPrestadaAnterior;
+                        pagado = cantidadPagadaAnterior;
+                        fireReference.child("UsuariosPrestamoPrincipal").child(usuario.getUid()).setValue(new PrestamoPrincipal(usuario.getNombre(), usuario.getCedula(), prestado, pagado)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(prestamoActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                                    Procesos.cargandoDetener();
+                                    startActivity(new Intent(prestamoActivity.this, MainActivity.class));
+                                    finish();
+                                }
+                            }
+                        });
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+    public void cerrarTeclado() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+
+
     void setOnTouch() {
         spinnerFormaPago.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -450,10 +532,12 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
                 double cantidadPorDia;
                 switch (position) {
                     case 0:
-                        txtImputDescripcion.getEditText().setText(descripcionDia);
+                        txtImputDescripcion.getEditText().setText("");
+                        txtInputFechaFin.getEditText().setText("");
                         break;
                     case 1:
-                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                        //descripccion automatica
+                        txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor);
                         if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty())) {
                             cantidadPrestada = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim());
                             interes = 0;
@@ -463,11 +547,19 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
                             numSemanas = Integer.parseInt(txtNumeroSemanas.getText().toString().trim());
                             cantidadPorDia = (cantidadPrestada + interes) / convertirSemanasADias();
                             descricionValor = "$" + Procesos.controlarEnteros(Procesos.controlarDecimales(cantidadPorDia));
-                            txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
+                            txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor);
                         }
-
+                        //fecha automatica
+                        if (!(txtNumeroSemanas.getText().toString().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().isEmpty()) && !(txtInputFechaInicio.getEditText().getText().toString().isEmpty())) {
+                            Date fechaFin;
+                            fechaFin = Procesos.sumarRestarDiasAFecha(diaFin, mesFin, anoFin, convertirSemanasADias());
+                            txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                        }
                         break;
                     case 2:
+                        if (!txtInputFechaInicio.getEditText().getText().toString().isEmpty()) {
+                            descripcionDia = "(" + Procesos.diaSemana(Procesos.sumarRestarDiasAFecha(diaFin, (mesFin + 1), anoFin, -1)) + ")";
+                        }
                         txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
                         if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty())) {
                             cantidadPrestada = Double.parseDouble(txtInputCantidadPrestada.getEditText().getText().toString().trim());
@@ -480,10 +572,23 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
                             descricionValor = "$" + Procesos.controlarEnteros(Procesos.controlarDecimales(cantidadPorDia));
                             txtImputDescripcion.getEditText().setText(descripcioTiempo + " " + descricionValor + " " + descripcionDia);
                         }
-
+                        //fecha automatica
+                        if (!(txtNumeroSemanas.getText().toString().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().isEmpty()) && !(txtInputFechaInicio.getEditText().getText().toString().isEmpty())) {
+                            Date fechaFin;
+                            int sema = Integer.parseInt(txtNumeroSemanas.getText().toString());
+                            fechaFin = Procesos.sumarRestarDiasAFecha(diaFin, mesFin, anoFin, sema * 7);
+                            txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                        }
                         break;
                     case 3:
                         txtImputDescripcion.getEditText().setText(descripcioTiempo + " todo");
+                        //fecha automatica
+                        if (!(txtNumeroSemanas.getText().toString().trim().isEmpty()) && !(txtInputCantidadPrestada.getEditText().getText().toString().trim().isEmpty()) && !(txtInputFechaInicio.getEditText().getText().toString().trim().isEmpty())) {
+                            Date fechaFin;
+                            int sema = Integer.parseInt(txtNumeroSemanas.getText().toString());
+                            fechaFin = Procesos.sumarRestarDiasAFecha(diaFin, mesFin, anoFin, sema * 7);
+                            txtInputFechaFin.getEditText().setText(fechaFin.getDate() + "-" + (fechaFin.getMonth() + 1) + "-" + (fechaFin.getYear() + 1900));
+                        }
                         break;
                 }
             }
@@ -560,10 +665,52 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
         });
     }
 
-    public void validarCampos() {
+    public boolean validarCampos() {
+        boolean validado = true;
         usuarioSelecionado = txtInputUsuarioSelecionado.getEditText().getText().toString().trim();
         numeroJunta = txtImputNumeroJunta.getEditText().getText().toString().trim();
         cantidadPrestada = txtInputCantidadPrestada.getEditText().getText().toString().trim();
         interesDolar = txtInteresDolar_Prestamo.getText().toString().trim();
+        interesPorciento = txtInteresPorcentaje_Prestamo.getText().toString().trim();
+        descripcion = txtImputDescripcion.getEditText().getText().toString().trim();
+        fechaInicio = txtInputFechaInicio.getEditText().getText().toString().trim();
+        fechaFin = txtInputFechaFin.getEditText().getText().toString().trim();
+        numeroSemanas = txtNumeroSemanas.getText().toString().trim();
+        if (usuarioSelecionado.isEmpty()) {
+            btnBuscarUsuario.requestFocusFromTouch();
+            //txtInputUsuarioSelecionado.getEditText().setError("Seleccione un usuario");
+            Toast.makeText(this, "Porfavor seleccione un usuario.", Toast.LENGTH_SHORT).show();
+            return false;
+        } else if (cantidadPrestada.isEmpty()) {
+            txtInputCantidadPrestada.getEditText().requestFocusFromTouch();
+            Toast.makeText(this, "Porfavor ingrese la cantidad prestada.", Toast.LENGTH_SHORT).show();
+            return false;
+        } else if (fechaInicio.isEmpty()) {
+            btnCalendario.requestFocusFromTouch();
+            Toast.makeText(this, "Porfavor seleccione una fecha de inicio.", Toast.LENGTH_SHORT).show();
+            return false;
+        } else if (numeroSemanas.isEmpty()) {
+            txtNumeroSemanas.requestFocusFromTouch();
+            Toast.makeText(this, "Porfavor ingrese el numero de semanas.", Toast.LENGTH_SHORT).show();
+            return false;
+        } else if (spinnerFormaPago.getSelectedItemPosition() == 0) {
+            spinnerFormaPago.requestFocusFromTouch();
+            Toast.makeText(this, "Porfavor seleccione la forma de pago.", Toast.LENGTH_SHORT).show();
+            return false;
+        } else if (switchIntereses.isChecked()) {
+            if (interesDolar.isEmpty()) {
+                txtInteresDolar_Prestamo.requestFocusFromTouch();
+                Toast.makeText(this, "Porfavor ingrese el interés en dolares.", Toast.LENGTH_SHORT).show();
+                return false;
+            } else if (interesPorciento.isEmpty()) {
+                txtInteresPorcentaje_Prestamo.requestFocusFromTouch();
+                Toast.makeText(this, "Porfavor ingrese el interés en porcentaje.", Toast.LENGTH_SHORT).show();
+                return false;
+            } else if (!(radioButtonUnaVez.isChecked()) && !(radioButtonPeriodo.isChecked())) {
+                Toast.makeText(this, "Porfavor selecione el tipo de interés UnaVez/Periodo.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+        return validado;
     }
 }
