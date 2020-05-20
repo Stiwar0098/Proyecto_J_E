@@ -2,8 +2,10 @@ package com.brasma.sistemajuntas.activitys;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,8 +27,12 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.UUID;
 
@@ -115,31 +121,45 @@ public class UsuarioActivity extends AppCompatActivity implements View.OnFocusCh
         us.setUid(id);
         con = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         networkInfo = con.getActiveNetworkInfo();
-
         if (!(networkInfo != null && networkInfo.isConnected())) {
             Toast.makeText(this, "El registro se actualizará cuando tenga internet", Toast.LENGTH_LONG).show();
             Procesos.cargandoDetener();
             startActivity(new Intent(UsuarioActivity.this, MainActivity.class));
             finish();
         }
-        fireReference.child("Usuarios").child(id).setValue(us).addOnCompleteListener(new OnCompleteListener<Void>() {
+        Query q = fireReference.child("Usuarios").orderByChild("cedula").equalTo(cedula);
+        q.addListenerForSingleValueEvent(new ValueEventListener() {// validar si el usuario ya existe
             @Override
-            public void onComplete(@NonNull Task<Void> task2) {
-                if (task2.isSuccessful()) {
-                    if (networkInfo != null && networkInfo.isConnected()) {
-                        crearAutentication();
-                        Toast.makeText(UsuarioActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                        Procesos.cargandoDetener();
-                        startActivity(new Intent(UsuarioActivity.this, MainActivity.class));
-                        finish();
-                    } else {
-                        crearAutentication();
-                        Toast.makeText(UsuarioActivity.this, "Actualización de registros exitosa", Toast.LENGTH_SHORT).show();
-                    }
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!(dataSnapshot.exists())) {
+                    fireReference.child("Usuarios").child(id).setValue(us).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task2) {
+                            if (task2.isSuccessful()) {
+                                if (networkInfo != null && networkInfo.isConnected()) {
+                                    crearAutentication();
+                                    Toast.makeText(UsuarioActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                                    Procesos.cargandoDetener();
+                                    startActivity(new Intent(UsuarioActivity.this, MainActivity.class));
+                                    finish();
+                                } else {
+                                    crearAutentication();
+                                    Toast.makeText(UsuarioActivity.this, "Actualización de registros exitosa", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(UsuarioActivity.this, "Este usuario ya existe", Toast.LENGTH_SHORT).show();
+                    Procesos.cargandoDetener();
                 }
             }
-        });
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void crearAutentication() {
@@ -152,6 +172,7 @@ public class UsuarioActivity extends AppCompatActivity implements View.OnFocusCh
                     us.setUid(idAux);
                     fireReference.child("Usuarios").child(idAux).setValue(us);
                     fireReference.child("UsuariosCantidadPrestamos").child(idAux).setValue(new UsuariosCantidadPrestamos(0));
+                    enviarMensajeWhatsapp();
                 } else {
                     if (networkInfo != null && networkInfo.isConnected()) {
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {//si el usuario ya xiste
@@ -166,6 +187,35 @@ public class UsuarioActivity extends AppCompatActivity implements View.OnFocusCh
         });
     }
 
+    public void enviarMensajeWhatsapp() {
+        boolean instadalo = appIntalada("com.whatsapp");
+        String num2 = numero.substring(1);
+        Toast.makeText(this, num2, Toast.LENGTH_SHORT).show();
+        String mensaje = "";
+        mensaje = "Bienvenido(a) a nuestro sistema \n" + "*Juntas Express*\n"
+                + "Para mayor comodidad y para el seguimiento de sus deudas hemos creado la siguiente aplicación:\n"
+                + "link de la aplicacion en la play store"
+                + "presione el enlace y descargue.";
+        if (instadalo) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("http://api.whatsapp.com/send?phone=" + "+593" + num2 + "&text=" + mensaje));
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Aplicacion whatsapp no instalada en su teléfono", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public boolean appIntalada(String url) {
+        PackageManager packageManager = getPackageManager();
+        boolean appInstalada2;
+        try {
+            packageManager.getPackageInfo(url, PackageManager.GET_ACTIVITIES);
+            appInstalada2 = true;
+        } catch (PackageManager.NameNotFoundException e) {
+            appInstalada2 = false;
+        }
+        return appInstalada2;
+    }
     public void cerrarTeclado() {
         View view = this.getCurrentFocus();
         if (view != null) {
@@ -291,6 +341,12 @@ public class UsuarioActivity extends AppCompatActivity implements View.OnFocusCh
             valor = 1;
         } else {
             txtImputConfirmarContraseña.setError(null);
+        }
+
+        String aux = numero.substring(0, 1);
+        if (!(aux.equals("0"))) {
+            Toast.makeText(this, "Numero incorrecto", Toast.LENGTH_SHORT).show();
+            valor = 1;
         }
         if (valor == 0) {
             return true;
