@@ -337,6 +337,18 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
                 }
             }
         });
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            Usuario user = (Usuario) extras.getSerializable("usuarioSeleccionado");
+            if (user == null) {
+                Toast.makeText(this, "No se a podido leer el usuario", Toast.LENGTH_SHORT).show();
+            } else {
+                Procesos.cargandoDetener();
+                btnBuscarUsuario.setVisibility(View.GONE);
+                UsuarioSelecionado(user);
+            }
+
+        }
         //spinner opciones
         String[] spinnerOpcionesFormaPago = {"<Seleccione>", "Diario", "Semanal", "Al final"};
         String[] spinnerOpcionesPeriodo = {"<Seleccione>", "Diario"};
@@ -658,7 +670,6 @@ public class prestamoActivity extends AppCompatActivity implements View.OnTouchL
                     Procesos.cargandoDetener();
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }

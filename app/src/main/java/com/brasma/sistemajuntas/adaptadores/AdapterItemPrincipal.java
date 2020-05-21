@@ -8,17 +8,26 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.brasma.sistemajuntas.Procesos;
 import com.brasma.sistemajuntas.R;
 import com.brasma.sistemajuntas.activitys.prestamoActivity;
 import com.brasma.sistemajuntas.entidades.PrestamoPrincipal;
+import com.brasma.sistemajuntas.entidades.Usuario;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
 public class AdapterItemPrincipal extends RecyclerView.Adapter<AdapterItemPrincipal.ViewHolder> implements View.OnClickListener {
 
-    public List<PrestamoPrincipal> listaPrestamo;
+    public static List<PrestamoPrincipal> listaPrestamo;
     private View.OnClickListener listener;
 
     public AdapterItemPrincipal(List<PrestamoPrincipal> listaPrestamo) {
@@ -33,15 +42,8 @@ public class AdapterItemPrincipal extends RecyclerView.Adapter<AdapterItemPrinci
         return viewHolder;
     }
 
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.nombreUsuario.setText(listaPrestamo.get(position).getNombreUsuario());
-        holder.totalPrestado.setText(listaPrestamo.get(position).getTotalPrestado() + " $");
-        holder.totalPagado.setText(listaPrestamo.get(position).getTotalPagado() + " $");
-        holder.pendiente.setText(listaPrestamo.get(position).getPendiente() + " $");
-        holder.cedula.setText(listaPrestamo.get(position).getCedula());
-        holder.setOnClickListener();
-    }
+    public static int i = 0;
+    public static Context context;
 
     @Override
     public int getItemCount() {
@@ -59,10 +61,20 @@ public class AdapterItemPrincipal extends RecyclerView.Adapter<AdapterItemPrinci
         }
     }
 
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.nombreUsuario.setText(listaPrestamo.get(position).getNombreUsuario());
+        holder.totalPrestado.setText(listaPrestamo.get(position).getTotalPrestado() + " $");
+        holder.totalPagado.setText(listaPrestamo.get(position).getTotalPagado() + " $");
+        holder.pendiente.setText(listaPrestamo.get(position).getPendiente() + " $");
+        holder.cedula.setText(listaPrestamo.get(position).getCedula());
+        holder.setOnClickListener();
+        i = position;
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        Context context;
         private TextView nombreUsuario, totalPrestado, totalPagado, pendiente, cedula;
-        private ImageButton agregarPrestamobtn;
+        private static ImageButton agregarPrestamobtn;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -82,10 +94,29 @@ public class AdapterItemPrincipal extends RecyclerView.Adapter<AdapterItemPrinci
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-
                 case R.id.btnAgregar:
-                    Intent intentPrestamo = new Intent(context, prestamoActivity.class);
-                    context.startActivity(intentPrestamo);
+                    Procesos.cargandoIniciar(context);
+                    DatabaseReference fireReference = null;
+                    fireReference = FirebaseDatabase.getInstance().getReference();
+                    Query q = fireReference.child("Usuarios").orderByChild("cedula").equalTo(listaPrestamo.get(i).getCedula());
+                    q.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            Usuario us = null;
+                            for (DataSnapshot snapShot : dataSnapshot.getChildren()) {
+                                us = snapShot.getValue(Usuario.class);
+                            }
+                            Intent intentPrestamo = new Intent(context, prestamoActivity.class);
+                            intentPrestamo.putExtra("usuarioSeleccionado", us);
+                            context.startActivity(intentPrestamo);
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                     break;
             }
         }

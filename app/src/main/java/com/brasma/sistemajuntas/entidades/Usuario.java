@@ -1,6 +1,8 @@
 package com.brasma.sistemajuntas.entidades;
 
-public class Usuario {
+import java.io.Serializable;
+
+public class Usuario implements Serializable {
     private String nombre, cedula, numero, usuario, contraseña, uid;
 
     public Usuario() {

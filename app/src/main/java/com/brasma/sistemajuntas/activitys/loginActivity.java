@@ -134,7 +134,6 @@ public class loginActivity extends AppCompatActivity implements View.OnClickList
                     editor.commit();
                     Intent intent = new Intent(loginActivity.this, MainActivity.class);
                     Toast.makeText(loginActivity.this, "Authentication success", Toast.LENGTH_SHORT).show();
-                    Procesos.cargandoDetener();
                     startActivity(intent);
                     finish();
                 }

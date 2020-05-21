@@ -1,17 +1,12 @@
 package com.brasma.sistemajuntas;
+
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.brasma.sistemajuntas.entidades.Usuario;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
 import java.util.Calendar;
@@ -31,7 +26,7 @@ public class Procesos extends AppCompatActivity {
 
     }
 
-    public static Usuario getUsuario(final Context context) {
+    /*public static Usuario getUsuario(final Context context) {
         fireReference = FirebaseDatabase.getInstance().getReference();
         user = new Usuario();
         Toast.makeText(context, "id:  " + id, Toast.LENGTH_LONG).show();
@@ -60,9 +55,8 @@ public class Procesos extends AppCompatActivity {
         } else {
             Toast.makeText(context, "No entro", Toast.LENGTH_SHORT).show();
         }
-
         return user;
-    }
+    }*/
 
     public static void cargandoIniciar(Context context) {
         //inicializamos progres dialog

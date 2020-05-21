@@ -172,6 +172,7 @@ public class UsuarioActivity extends AppCompatActivity implements View.OnFocusCh
                     us.setUid(idAux);
                     fireReference.child("Usuarios").child(idAux).setValue(us);
                     fireReference.child("UsuariosCantidadPrestamos").child(idAux).setValue(new UsuariosCantidadPrestamos(0));
+                    Toast.makeText(UsuarioActivity.this, "Enviando mensaje por Whatsapp", Toast.LENGTH_SHORT).show();
                     enviarMensajeWhatsapp();
                 } else {
                     if (networkInfo != null && networkInfo.isConnected()) {
@@ -190,12 +191,16 @@ public class UsuarioActivity extends AppCompatActivity implements View.OnFocusCh
     public void enviarMensajeWhatsapp() {
         boolean instadalo = appIntalada("com.whatsapp");
         String num2 = numero.substring(1);
-        Toast.makeText(this, num2, Toast.LENGTH_SHORT).show();
         String mensaje = "";
-        mensaje = "Bienvenido(a) a nuestro sistema \n" + "*Juntas Express*\n"
-                + "Para mayor comodidad y para el seguimiento de sus deudas hemos creado la siguiente aplicación:\n"
-                + "link de la aplicacion en la play store"
-                + "presione el enlace y descargue.";
+        mensaje = "Hola " + nombre + ".\n"
+                + "Bienvenido(a) a nuestro sistema \n" + "*Juntas Express*\n"
+                + "Para mayor comodidad y para el seguimiento de sus deudas se ha creado la siguiente aplicación:\n"
+                + "link de la aplicacion en la play store\n"
+                + "presione el enlace y descargue.\n"
+                + "Para su inicio de seccion:\n"
+                + "*Usuario:* \n" + usuario + "\n"
+                + "*Contraseña:* " + cedula;
+
         if (instadalo) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse("http://api.whatsapp.com/send?phone=" + "+593" + num2 + "&text=" + mensaje));
@@ -344,8 +349,9 @@ public class UsuarioActivity extends AppCompatActivity implements View.OnFocusCh
         }
 
         String aux = numero.substring(0, 1);
-        if (!(aux.equals("0"))) {
-            Toast.makeText(this, "Numero incorrecto", Toast.LENGTH_SHORT).show();
+        String aux2 = numero.substring(1, 2);
+        if (!(aux.equals("0")) || !(aux2.equals("9"))) {
+            txtImputNumero.setError("Numero incorrecto");
             valor = 1;
         }
         if (valor == 0) {

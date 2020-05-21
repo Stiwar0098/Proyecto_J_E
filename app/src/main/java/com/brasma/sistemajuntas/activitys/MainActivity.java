@@ -176,6 +176,10 @@ public class MainActivity extends AppCompatActivity {
         adaptadorItemPrincipal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (v.getId() == R.id.btnAgregar) {
+                    Intent intentPrestamo = new Intent(MainActivity.this, prestamoActivity.class);
+                    startActivity(intentPrestamo);
+                }
                 PrestamoPrincipal prestamoPrincipal = listaPrestamoPrincipal.get(recyclerViewPrestamo.getChildAdapterPosition(v));
                 Intent intent = new Intent(MainActivity.this, deudasActivity.class);
                 intent.putExtra("prestamoPrincipal", prestamoPrincipal);
